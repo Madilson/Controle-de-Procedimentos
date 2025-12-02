@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Controle de Procedimentos</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+                400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+                800: '#1e40af', 900: '#1e3a8a', 950: '#172554',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- jsPDF & AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "jspdf": "https://aistudiocdn.com/jspdf@^3.0.4",
+    "jspdf-autotable": "https://aistudiocdn.com/jspdf-autotable@^5.0.2",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "react-tooltip": "https://aistudiocdn.com/react-tooltip@^5.30.0"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-200">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
+            <div class="bg-primary-600 p-8 text-center">
+                <div id="login-logo-container" class="mx-auto mb-4 flex justify-center">
+                    <!-- Icon or Logo injected by JS -->
+                </div>
+                <h2 class="text-2xl font-bold text-white">Bem-vindo</h2>
+                <p class="text-primary-100 mt-1">Faça login para acessar o sistema</p>
+            </div>
+            <div class="p-8">
+                <form id="login-form" class="space-y-6">
+                    <div id="login-error" class="hidden bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 text-sm text-red-700 dark:text-red-200"></div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuário</label>
+                        <input type="text" id="username" required class="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
+                        <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Entrar
+                    </button>
+                    <div class="text-center text-xs text-gray-400">
+                        <p>Admin: admin / 123 | User: user / 123</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP CONTENT (Hidden by default) -->
+    <div id="app-content" class="hidden min-h-screen pb-12">
+        <!-- Nav -->
+        <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 lg:px-8 py-2">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="hidden sm:inline">Bem-vindo,</span>
+                    <span id="user-display" class="font-medium text-gray-900 dark:text-white flex items-center gap-1"></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="admin-controls" class="hidden flex items-center gap-3">
+                        <button onclick="openSettingsModal()" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white flex items-center gap-1" title="Configurações">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </button>
+                        <div class="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
+                        <button onclick="openUserModal()" class="text-sm text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            <span class="hidden sm:inline">Usuários</span>
+                        </button>
+                        <div class="h-4 w-px bg-gray-300 dark:bg-gray-600"></div>
+                    </div>
+                    <button onclick="logout()" class="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Header & Banner -->
+            <header class="mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <div id="header-logo-container">
+                        <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Sistema de Controle</h1>
+                        <p class="mt-1 text-md text-gray-500 dark:text-gray-400">Gerencie e visualize os dados dos procedimentos.</p>
+                    </div>
+                    <div class="flex items-center gap-4 w-full md:w-auto justify-end">
+                        <button onclick="toggleTheme()" class="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+                             <!-- Paint Brush Icon -->
+                             <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42"></path></svg>
+                        </button>
+                        <button onclick="openProcedureModal()" class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg shadow-md transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15"></path></svg>
+                            <span class="hidden sm:inline">Adicionar Procedimento</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="dashboard-banner" class="hidden w-full overflow-hidden rounded-xl shadow-md mb-6">
+                    <img id="dashboard-banner-img" src="" alt="Banner" class="w-full h-32 md:h-56 object-cover">
+                </div>
+            </header>
+
+            <!-- Dashboard Stats -->
+            <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Stats injected by JS -->
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Análise por Região</h2>
+                    <canvas id="chartRegion"></canvas>
+                 </div>
+                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Valor Pago (Tendência Diária)</h2>
+                    <canvas id="chartLine"></canvas>
+                 </div>
+                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 lg:col-span-2">
+                    <h2 class="text-xl font-semibold mb-4">Valor Pago por Mês</h2>
+                    <canvas id="chartMonthly"></canvas>
+                 </div>
+            </div>
+
+            <!-- Table & Filters -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4 cursor-pointer" onclick="toggleFilters()">
+                        <h2 class="text-xl font-semibold">Filtros e Opções</h2>
+                        <svg id="filter-chevron" class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    
+                    <div id="filters-container" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <input type="text" id="search-term" placeholder="Buscar..." class="form-input">
+                            <select id="filter-region" class="form-input"><option value="">Todas Regiões</option></select>
+                            <select id="filter-state" class="form-input"><option value="">Todos Estados</option></select>
+                            <select id="filter-hospital" class="form-input"><option value="">Todas Unidades</option></select>
+                            <select id="filter-procedure" class="form-input"><option value="">Todos Procedimentos</option></select>
+                            <select id="filter-creator" class="form-input"><option value="">Registrado Por (Todos)</option></select>
+                            <input type="date" id="filter-start-date" class="form-input" placeholder="De">
+                            <input type="date" id="filter-end-date" class="form-input" placeholder="Até">
+                        </div>
+                        <div class="flex justify-end gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <button onclick="exportExcel()" class="btn bg-green-600 hover:bg-green-700 text-white">Excel</button>
+                            <button onclick="exportCSV()" class="btn bg-orange-500 hover:bg-orange-600 text-white">CSV</button>
+                            <button onclick="exportPDF()" class="btn bg-red-600 hover:bg-red-700 text-white">PDF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="procedure-table">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="table-th">Data</th>
+                                <th class="table-th">Região</th>
+                                <th class="table-th">Estado</th>
+                                <th class="table-th">Unidade</th>
+                                <th class="table-th">Procedimento</th>
+                                <th class="table-th">Registrado Por</th>
+                                <th class="table-th text-center">Qtd Real.</th>
+                                <th class="table-th text-center">Qtd Fat.</th>
+                                <th class="table-th text-center">Qtd Pago</th>
+                                <th class="table-th">Vlr Real.</th>
+                                <th class="table-th">Vlr Fat.</th>
+                                <th class="table-th">Vlr Pago</th>
+                                <th class="table-th">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                        <tfoot id="table-footer" class="bg-gray-100 dark:bg-gray-700 font-bold">
+                            <!-- Totals injected by JS -->
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Procedure Form Modal -->
+    <div id="modal-procedure" class="modal hidden">
+        <div class="modal-content max-w-2xl">
+            <h2 id="modal-title" class="text-2xl font-bold mb-4 border-b pb-2 dark:border-gray-700">Novo Procedimento</h2>
+            <form id="procedure-form" class="space-y-4">
+                <input type="hidden" id="proc-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div><label>Nome do Procedimento</label><input type="text" id="proc-name" required class="form-input" list="proc-list"></div>
+                     <div><label>Unidade Hospitalar</label><input type="text" id="proc-hospital" required class="form-input"></div>
+                     <div><label>Data</label><input type="date" id="proc-date" required class="form-input"></div>
+                     <div class="grid grid-cols-2 gap-2">
+                         <div><label>Região</label><select id="proc-region" required class="form-input"></select></div>
+                         <div><label>Estado</label><select id="proc-state" required class="form-input"></select></div>
+                     </div>
+                </div>
+                <div class="border-t pt-2 mt-2 dark:border-gray-700"><h3 class="font-semibold">Quantidades</h3></div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div><label>Qtd Real.</label><input type="number" id="proc-qty-perf" min="0" required class="form-input"></div>
+                    <div><label>Qtd Fat.</label><input type="number" id="proc-qty-bill" min="0" required class="form-input"></div>
+                    <div><label>Qtd Pago</label><input type="number" id="proc-qty-paid" min="0" required class="form-input"></div>
+                </div>
+                <div class="border-t pt-2 mt-2 dark:border-gray-700"><h3 class="font-semibold">Valores (R$)</h3></div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div><label>Vlr Real.</label><input type="text" id="proc-val-perf" required class="form-input money-input"></div>
+                    <div><label>Vlr Fat.</label><input type="text" id="proc-val-bill" required class="form-input money-input"></div>
+                    <div><label>Vlr Pago</label><input type="text" id="proc-val-paid" required class="form-input money-input"></div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeModal('modal-procedure')" class="btn bg-gray-200 text-gray-800 hover:bg-gray-300">Cancelar</button>
+                    <button type="submit" class="btn bg-primary-600 text-white hover:bg-primary-700">Salvar</button>
+                </div>
+            </form>
+            <datalist id="proc-list"></datalist>
+        </div>
+    </div>
+
+    <!-- User Management Modal -->
+    <div id="modal-users" class="modal hidden">
+        <div class="modal-content max-w-3xl">
+            <div class="flex justify-between items-center mb-4 border-b pb-2 dark:border-gray-700">
+                <h2 class="text-xl font-bold">Gerenciar Usuários</h2>
+                <button onclick="closeModal('modal-users')" class="text-gray-500 hover:text-red-500">✕</button>
+            </div>
+            <form id="user-form" class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                <div class="md:col-span-1"><label class="text-xs">Login</label><input type="text" id="user-login" required class="form-input text-sm"></div>
+                <div class="md:col-span-1"><label class="text-xs">Senha</label><input type="text" id="user-pass" required class="form-input text-sm"></div>
+                <div class="md:col-span-1"><label class="text-xs">Nome</label><input type="text" id="user-name" required class="form-input text-sm"></div>
+                <div class="md:col-span-1"><label class="text-xs">Função</label><select id="user-role" class="form-input text-sm"><option value="user">Usuário</option><option value="admin">Admin</option></select></div>
+                <button type="submit" class="btn bg-green-600 text-white text-sm h-10 w-full">Adicionar</button>
+            </form>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700"><tr><th class="px-4 py-2 text-left">Nome</th><th class="px-4 py-2 text-left">Login</th><th class="px-4 py-2 text-left">Role</th><th class="px-4 py-2 text-right">Ação</th></tr></thead>
+                    <tbody id="users-table-body" class="bg-white dark:bg-gray-800 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="modal hidden">
+        <div class="modal-content max-w-md">
+            <h2 class="text-xl font-bold mb-4">Configurações</h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block font-medium mb-1">Logo da Empresa</label>
+                    <input type="file" id="settings-logo" accept="image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                    <button onclick="clearSetting('logo')" class="text-xs text-red-500 mt-1 hover:underline">Remover Logo</button>
+                </div>
+                <div>
+                    <label class="block font-medium mb-1">Banner do Dashboard</label>
+                    <input type="file" id="settings-banner" accept="image/png" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                    <button onclick="clearSetting('banner')" class="text-xs text-red-500 mt-1 hover:underline">Remover Banner</button>
+                </div>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button onclick="closeModal('modal-settings')" class="btn bg-gray-200 text-gray-800">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
