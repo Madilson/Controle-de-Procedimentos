@@ -40,8 +40,8 @@
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "jspdf": "https://aistudiocdn.com/jspdf@^3.0.4",
     "jspdf-autotable": "https://aistudiocdn.com/jspdf-autotable@^5.0.2",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
-    "react-tooltip": "https://aistudiocdn.com/react-tooltip@^5.30.0"
+    "react-tooltip": "https://aistudiocdn.com/react-tooltip@^5.30.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1"
   }
 }
 </script>
@@ -65,15 +65,12 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Usuário</label>
                         <input type="text" id="username" required class="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
-                        <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-white focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
-                    </div>
+                    <!-- Senha removida -->
                     <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                         Entrar
                     </button>
                     <div class="text-center text-xs text-gray-400">
-                        <p>Admin: admin / 123 | User: user / 123</p>
+                        <p>Admin: admin | User: user</p>
                     </div>
                 </form>
             </div>
@@ -118,7 +115,7 @@
                         <p class="mt-1 text-md text-gray-500 dark:text-gray-400">Gerencie e visualize os dados dos procedimentos.</p>
                     </div>
                     <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                        <button onclick="toggleTheme()" class="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <button onclick="toggleTheme()" class="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 dark:hover:text-white transition-colors">
                              <!-- Paint Brush Icon -->
                              <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42"></path></svg>
                         </button>
@@ -258,9 +255,9 @@
                 <h2 class="text-xl font-bold">Gerenciar Usuários</h2>
                 <button onclick="closeModal('modal-users')" class="text-gray-500 hover:text-red-500">✕</button>
             </div>
-            <form id="user-form" class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+            <form id="user-form" class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-6 grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
                 <div class="md:col-span-1"><label class="text-xs">Login</label><input type="text" id="user-login" required class="form-input text-sm"></div>
-                <div class="md:col-span-1"><label class="text-xs">Senha</label><input type="text" id="user-pass" required class="form-input text-sm"></div>
+                <!-- Senha removida -->
                 <div class="md:col-span-1"><label class="text-xs">Nome</label><input type="text" id="user-name" required class="form-input text-sm"></div>
                 <div class="md:col-span-1"><label class="text-xs">Função</label><select id="user-role" class="form-input text-sm"><option value="user">Usuário</option><option value="admin">Admin</option></select></div>
                 <button type="submit" class="btn bg-green-600 text-white text-sm h-10 w-full">Adicionar</button>

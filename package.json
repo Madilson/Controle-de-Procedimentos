@@ -1,5 +1,5 @@
 {
-  "name": "copy-of-copy-of-sistema-de-controle-de-procedimentos",
+  "name": "copy-of-sistema-de-controle-de-procedimentos",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,8 +12,8 @@
     "react": "^19.2.0",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
-    "recharts": "^3.5.1",
-    "react-tooltip": "^5.30.0"
+    "react-tooltip": "^5.30.0",
+    "recharts": "^3.5.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

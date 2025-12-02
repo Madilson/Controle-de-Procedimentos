@@ -3,8 +3,8 @@ const REGIONS = ['Centro-Oeste', 'Nordeste', 'Norte', 'Sudeste', 'Sul'];
 const STATES = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 
 const DEFAULT_USERS = [
-    { id: '1', username: 'admin', password: '123', name: 'Administrador', role: 'admin' },
-    { id: '2', username: 'user', password: '123', name: 'Usuário Padrão', role: 'user' }
+    { id: '1', username: 'admin', password: '', name: 'Administrador', role: 'admin' },
+    { id: '2', username: 'user', password: '', name: 'Usuário Padrão', role: 'user' }
 ];
 
 const MOCK_DATA = [
@@ -15,16 +15,21 @@ const MOCK_DATA = [
 ];
 
 // --- STATE MANAGEMENT ---
+function loadUsers() {
+    try {
+        const stored = JSON.parse(localStorage.getItem('app_users'));
+        if (Array.isArray(stored) && stored.length > 0) return stored;
+    } catch(e) { console.error('Error loading users', e); }
+    return DEFAULT_USERS;
+}
+
 let appState = {
     currentUser: null,
-    users: JSON.parse(localStorage.getItem('app_users')) || DEFAULT_USERS,
+    users: loadUsers(),
     procedures: JSON.parse(localStorage.getItem('app_data')) || MOCK_DATA,
     theme: localStorage.getItem('theme') || 'classic',
     filters: { search: '', region: '', state: '', hospital: '', procedure: '', creator: '', start: '', end: '' }
 };
-
-// PHP Backend Flag - Set to true if you implement api.php
-const USE_PHP_BACKEND = false; 
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -46,11 +51,9 @@ function checkAuth() {
 
 function login(e) {
     e.preventDefault();
-    const userIn = document.getElementById('username').value;
-    const passIn = document.getElementById('password').value;
+    const userIn = document.getElementById('username').value.trim();
     
-    // In PHP mode, this would be a fetch POST to api.php?action=login
-    const user = appState.users.find(u => u.username === userIn && u.password === passIn);
+    const user = appState.users.find(u => u.username === userIn);
     
     if (user) {
         appState.currentUser = user;
@@ -59,7 +62,7 @@ function login(e) {
         showApp();
     } else {
         const errEl = document.getElementById('login-error');
-        errEl.textContent = 'Usuário ou senha incorretos.';
+        errEl.textContent = 'Usuário não encontrado.';
         errEl.classList.remove('hidden');
     }
 }
@@ -404,9 +407,9 @@ function openUserModal() {
 
 function saveUser(e) {
     e.preventDefault();
-    const login = document.getElementById('user-login').value;
-    const pass = document.getElementById('user-pass').value;
-    const name = document.getElementById('user-name').value;
+    const login = document.getElementById('user-login').value.trim();
+    // Senha removida da leitura
+    const name = document.getElementById('user-name').value.trim();
     const role = document.getElementById('user-role').value;
 
     if (appState.users.some(u => u.username === login)) {
@@ -414,7 +417,8 @@ function saveUser(e) {
         return;
     }
 
-    appState.users.push({ id: crypto.randomUUID(), username: login, password: pass, name: name, role: role });
+    // Criar usuário com senha vazia
+    appState.users.push({ id: crypto.randomUUID(), username: login, password: '', name: name, role: role });
     localStorage.setItem('app_users', JSON.stringify(appState.users));
     
     document.getElementById('user-form').reset();
